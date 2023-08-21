@@ -22,7 +22,7 @@ public class UserRole
 public class SaleTransaction
 {
 	public int Id { get; set; }
-	public required double Total { get; set; }
+	public required decimal Total { get; set; }
 	public required DateTime CreatedAt { get; set; }
 	public required DateTime LastUpdatedAt { get; set; }
 
@@ -37,7 +37,7 @@ public class SaleItem
 
 	public required Product Product { get; set; }
 	public required double Quantity { get; set; }
-	public required double Total { get; set; }
+	public required decimal Total { get; set; }
 }
 
 public class Product
@@ -46,7 +46,7 @@ public class Product
 	public required string Name { get; set; }
 	public string? Description { get; set; }
 
-	public required double UnitPrice { get; set; }
+	public required decimal UnitPrice { get; set; }
 }
 
 
