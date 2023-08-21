@@ -1,4 +1,6 @@
-﻿namespace Srs.Api.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Srs.Api.Domain;
 
 public class User
 {
@@ -19,6 +21,7 @@ public class UserRole
 
 public class SaleTransaction
 {
+	public int Id { get; set; }
 	public required double Total { get; set; }
 	public required DateTime CreatedAt { get; set; }
 	public required DateTime LastUpdatedAt { get; set; }
@@ -47,3 +50,15 @@ public class Product
 }
 
 
+public class SrsDbContext : DbContext
+{
+	public required DbSet<User> Users { get; set; }
+	public required DbSet<UserRole> UserRoles { get; set; }
+	public required DbSet<SaleTransaction> SaleTransactions { get; set; }
+	public required DbSet<SaleItem> SaleItems { get; set; }
+	public required DbSet<Product> Products { get; set; }
+
+	public SrsDbContext(DbContextOptions<SrsDbContext> options) : base(options)
+	{
+	}
+}
