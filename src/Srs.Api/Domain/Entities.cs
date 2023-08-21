@@ -10,13 +10,21 @@ public class User
 	public required string PasswordHash { get; set; }
 
 	public User? ReportingManager { get; set; }
-	public required ICollection<UserRole> Roles { get; set; }
+	public ICollection<UserRole> Roles { get; set; } = new HashSet<UserRole>();
+}
+
+public class UserUserRole
+{
+	public int UserId { get; set; }
+	public int UserRoleId { get; set; }
 }
 
 public class UserRole
 {
 	public required int Id { get; set; }
 	public required string Name { get; set; }
+
+	public ICollection<User> Users { get; set; } = new HashSet<User>();
 }
 
 public class SaleTransaction
@@ -27,7 +35,7 @@ public class SaleTransaction
 	public required DateTime LastUpdatedAt { get; set; }
 
 
-	public required ICollection<SaleItem> Items { get; set; }
+	public required ICollection<SaleItem> Items { get; set; } = new HashSet<SaleItem>();
 	public required User User { get; set; }
 }
 
@@ -60,5 +68,13 @@ public class SrsDbContext : DbContext
 
 	public SrsDbContext(DbContextOptions<SrsDbContext> options) : base(options)
 	{
+	}
+
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+	{
+		modelBuilder.Entity<User>()
+			.HasMany(x => x.Roles)
+			.WithMany(x => x.Users)
+			.UsingEntity<UserUserRole>();
 	}
 }
