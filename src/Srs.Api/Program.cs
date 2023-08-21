@@ -12,13 +12,6 @@ builder.Services.AddDbContext<SrsDbContext>(o =>
 
 var app = builder.Build();
 
-// todo: move db migration out
-using (var scope = app.Services.CreateScope())
-{
-	var db = scope.ServiceProvider.GetRequiredService<SrsDbContext>();
-	await db.Database.EnsureCreatedAsync();
-}
-
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
