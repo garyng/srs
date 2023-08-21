@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  srs.api:
+    image: ${DOCKER_REGISTRY-}srsapi
+    build:
+      context: .
+      dockerfile: Srs.Api/Dockerfile
