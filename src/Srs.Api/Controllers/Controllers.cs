@@ -32,6 +32,32 @@ public class DbAdminController : ControllerBase
 			.RuleFor(x => x.UnitPrice, x => x.Random.Decimal() * 100_000)
 			.Generate(count);
 		await _db.Products.AddRangeAsync(products);
+
+		await _db.SaveChangesAsync();
+	}
+
+
+	[HttpGet]
+	public async Task SeedUsers()
+	{
+		var adminRole = new UserRole { Id = 0, Name = "admin" };
+		var agentRole = new UserRole { Id = 0, Name = "agent" };
+		await _db.UserRoles.AddRangeAsync(adminRole, agentRole);
+
+		// todo: hash password
+		var adminUser = new User { Id = 0, Name = "admin", PasswordHash = "admin", Roles = new List<UserRole> { adminRole } };
+		var agentUsers = new Faker<User>()
+			.Rules((f, u) =>
+			{
+				u.Name = $"agent{f.IndexVariable++}";
+				u.PasswordHash = u.Name;
+				u.ReportingManager = adminUser;
+				u.Roles = new List<UserRole> { agentRole };
+
+			})
+			.Generate(10);
+		await _db.Users.AddRangeAsync(agentUsers.Prepend(adminUser));
+		
 		await _db.SaveChangesAsync();
 	}
 }
