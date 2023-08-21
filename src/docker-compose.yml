@@ -6,3 +6,17 @@ services:
     build:
       context: .
       dockerfile: Srs.Api/Dockerfile
+
+  srs.db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "21433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      SA_PASSWORD: "123!@#qweQWE"
+    volumes:
+      - srs.db-data:/var/opt/mssql
+
+volumes:
+  srs.db-data:
