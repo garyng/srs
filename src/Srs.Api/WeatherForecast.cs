@@ -1,4 +1,4 @@
-namespace Srs
+namespace Srs.Api
 {
 	public class WeatherForecast
 	{
