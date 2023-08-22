@@ -70,6 +70,12 @@ public class SrsDbContext : DbContext
 	{
 	}
 
+	protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+	{
+		configurationBuilder.Properties<Decimal>()
+			.HavePrecision(19, 6);
+	}
+
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		modelBuilder.Entity<User>()
