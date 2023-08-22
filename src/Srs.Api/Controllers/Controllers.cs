@@ -1,7 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text;
 using Bogus;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -44,8 +46,8 @@ public class DbAdminController : ControllerBase
 	[HttpGet]
 	public async Task SeedUsers()
 	{
-		var adminRole = new UserRole { Id = 0, Name = "admin" };
-		var agentRole = new UserRole { Id = 0, Name = "agent" };
+		var adminRole = new UserRole { Id = 0, Name = Constants.ADMIN_ROLE_NAME};
+		var agentRole = new UserRole { Id = 0, Name = Constants.AGENT_ROLE_NAME };
 		await _db.UserRoles.AddRangeAsync(adminRole, agentRole);
 
 		// todo: hash password
@@ -72,8 +74,8 @@ public class AuthController : ControllerBase
 {
 	private readonly SrsDbContext _db;
 
-	public record AuthenticateRequest(string UserName, string Password);
-	public record AuthenticateResponse(string Token, DateTime ExpiresAt);
+	public record TokenRequest(string UserName, string Password);
+	public record TokenResponse(string Token, DateTime ExpiresAt);
 
 	public AuthController(SrsDbContext db)
 	{
@@ -81,7 +83,7 @@ public class AuthController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<AuthenticateResponse> Authenticate([FromBody] AuthenticateRequest request)
+	public async Task<TokenResponse> Token([FromBody] TokenRequest request)
 	{
 		// todo: hash password
 		var passwordHash = request.Password;
@@ -91,27 +93,29 @@ public class AuthController : ControllerBase
 
 
 		var handler = new JwtSecurityTokenHandler();
-		var secret = "very-long-long-long-jwt-secret"u8.ToArray();
+		var secret = Constants.JWT_DEFAULT_SECRET;
 		var now = DateTime.UtcNow;
 		var expires = now.AddMinutes(5);
 		var descriptor = new SecurityTokenDescriptor
 		{
+			Issuer = Constants.JWT_VALID_ISSUER,
+			Audience = Constants.JWT_VALID_AUDIENCE,
 			Subject = new(new[]
 			{
 				new Claim("id", user.Id.ToString()),
 			}),
 			Expires = expires,
-			SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256Signature)
+			SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256Signature),
 		};
 
 		var token = handler.CreateToken(descriptor);
 		var jwt = handler.WriteToken(token);
 
-		return new AuthenticateResponse(jwt, expires);
+		return new TokenResponse(jwt, expires);
 	}
 }
 
-	[ApiController]
+[ApiController]
 [Route("[controller]")]
 public class ProductsController
 {
@@ -123,6 +127,7 @@ public class ProductsController
 	}
 
 	// todo: use dto
+	[Authorize]
 	[HttpGet]
 	public async Task<List<Product>> GetAll()
 	{
