@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: Srs.Api/Dockerfile
+    environment:
+       SrsConfig__DbConnectionString: "Server=srs.db;Database=srs;User Id=sa;Password=123!@#qweQWE;Trust Server Certificate=True"
 
   srs.db:
     image: mcr.microsoft.com/mssql/server:2022-latest

@@ -22,10 +22,14 @@ builder.Services.AddOpenApiDocument(c =>
 	c.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("bearer auth"));
 });
 
+// config
+
+var config = builder.Configuration.GetSection(nameof(SrsConfig)).Get<SrsConfig>();
+
 // database
 
 builder.Services.AddDbContext<SrsDbContext>(o =>
-	o.UseSqlServer("Server=srs.db;Database=srs;User Id=sa;Password=123!@#qweQWE;Trust Server Certificate=True"));
+	o.UseSqlServer(config.DbConnectionString));
 
 // jwt auth
 
@@ -64,6 +68,11 @@ app.MapControllers();
 
 app.Run();
 
+
+public record SrsConfig
+{
+	public string DbConnectionString { get; set; }
+}
 
 public static class Constants
 {
