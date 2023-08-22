@@ -82,3 +82,5 @@ public static class Constants
 	public static string ADMIN_ROLE_NAME = "admin";
 	public static string AGENT_ROLE_NAME = "agent";
 }
+
+public partial class Program {}

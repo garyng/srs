@@ -1,0 +1,200 @@
+{
+  "x-generator": "NSwag v13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v10.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Srs.Api",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/DbAdmin/RecreateDatabase": {
+      "get": {
+        "tags": [
+          "DbAdmin"
+        ],
+        "operationId": "DbAdmin_RecreateDatabase",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer auth": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/DbAdmin/SeedProducts": {
+      "get": {
+        "tags": [
+          "DbAdmin"
+        ],
+        "operationId": "DbAdmin_SeedProducts",
+        "parameters": [
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer auth": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/DbAdmin/SeedUsers": {
+      "get": {
+        "tags": [
+          "DbAdmin"
+        ],
+        "operationId": "DbAdmin_SeedUsers",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer auth": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/Auth/Token": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "Auth_Token",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Products": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "Products_GetAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer auth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TokenResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TokenRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearer auth": {
+        "type": "http",
+        "description": "JWT Authorization using the Bearer scheme.",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
