@@ -1,32 +1,24 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using NSwag.Generation.Processors.Security;
+using NSwag;
 using Srs.Api.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(o =>
+builder.Services.AddOpenApiDocument(c =>
 {
-	o.AddSecurityDefinition("bearer auth", new OpenApiSecurityScheme
+	c.AddSecurity("bearer auth", new OpenApiSecurityScheme
 	{
-		Type = SecuritySchemeType.Http,
+		Type = OpenApiSecuritySchemeType.Http,
 		Scheme = JwtBearerDefaults.AuthenticationScheme,
 		BearerFormat = "JWT",
 		Description = "JWT Authorization using the Bearer scheme."
 	});
-	o.AddSecurityRequirement(new OpenApiSecurityRequirement
-	{
-		{
-			new OpenApiSecurityScheme
-			{
-				Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "bearer auth" }
-			},
-			new string[] {}
-		}
-	});
+	c.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("bearer auth"));
 });
 
 // database
@@ -60,8 +52,8 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+	app.UseOpenApi();
+	app.UseSwaggerUi3();
 }
 
 app.UseAuthentication();
