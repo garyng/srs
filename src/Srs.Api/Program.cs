@@ -11,6 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApiDocument(c =>
 {
+	c.Title = "Srs.Api";
 	c.AddSecurity("bearer auth", new OpenApiSecurityScheme
 	{
 		Type = OpenApiSecuritySchemeType.Http,
