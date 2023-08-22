@@ -1,7 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Reflection.Metadata;
 using System.Security.Claims;
-using System.Text;
 using Bogus;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,8 +9,17 @@ using Srs.Api.Domain;
 
 namespace Srs.Api.Controllers;
 
+public class AuthorizeAdminAttribute : AuthorizeAttribute
+{
+	public AuthorizeAdminAttribute()
+	{
+		Roles = Constants.ADMIN_ROLE_NAME;
+	}
+}
+
 [ApiController]
 [Route("[controller]/[action]")]
+[AuthorizeAdmin]
 public class DbAdminController : ControllerBase
 {
 	private readonly SrsDbContext _db;
@@ -91,20 +98,25 @@ public class AuthController : ControllerBase
 
 		if (user == null) throw new Exception("Invalid user credentials");
 
+		await _db.Entry(user)
+			.Collection(x => x.Roles)
+			.LoadAsync();
 
 		var handler = new JwtSecurityTokenHandler();
 		var secret = Constants.JWT_DEFAULT_SECRET;
 		var now = DateTime.UtcNow;
 		var expires = now.AddMinutes(5);
+		var claims = new List<Claim>
+		{
+			new("id", user.Id.ToString()),
+			new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+		}.Concat(user.Roles.Select(x => new Claim(ClaimTypes.Role, x.Name)));
+
 		var descriptor = new SecurityTokenDescriptor
 		{
 			Issuer = Constants.JWT_VALID_ISSUER,
 			Audience = Constants.JWT_VALID_AUDIENCE,
-			Subject = new(new[]
-			{
-				new Claim("id", user.Id.ToString()),
-			}),
-			Expires = expires,
+			Subject = new ClaimsIdentity(claims),
 			SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256Signature),
 		};
 

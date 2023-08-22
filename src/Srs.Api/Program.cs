@@ -54,7 +54,6 @@ builder.Services.AddAuthentication(o =>
 	};
 });
 
-// todo: add policy for roles
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
