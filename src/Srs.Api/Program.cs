@@ -75,7 +75,7 @@ if (config.ShouldSeedDatabase)
 {
 	using var scope = app.Services.CreateScope();
 	var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-	await mediator.Send(new ReseedDatabase());
+	await mediator.Send(new SeedDatabase(true));
 	return;
 }
 

@@ -17,9 +17,12 @@ public class DbAdminController : ControllerBase
     }
 
     [HttpPost]
-    public async Task RecreateDatabase()
+    public async Task SeedDatabase(bool recreate)
     {
-        await _mediator.Send(new RecreateDatabase());
+        await _mediator.Send(new SeedDatabase
+        {
+            Recreate = recreate
+        });
     }
 
     [HttpPost]
