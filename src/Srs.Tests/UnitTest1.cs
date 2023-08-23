@@ -126,17 +126,17 @@ namespace Srs.Tests
 		public async Task<GenerateTokenResult> Handle(AuthenticateAsTestUser request, CancellationToken cancellationToken)
 		{
 			var role = await _db.UserRoles.FirstOrDefaultAsync(x => x.Name == request.Role, cancellationToken: cancellationToken);
-			role ??= new UserRole
+			role ??= new Api.Domain.UserRole
 			{
 				Id = 0,
 				Name = request.Role
 			};
-			var user = new User
+			var user = new Api.Domain.User
 			{
 				Id = 0,
 				Name = request.UserName,
 				PasswordHash = await _mediator.Send(new GetHashOf(request.Password), cancellationToken),
-				Roles = new List<UserRole> { role }
+				Roles = new List<Api.Domain.UserRole> { role }
 			};
 			_db.Users.Add(user);
 			await _db.SaveChangesAsync(cancellationToken);
