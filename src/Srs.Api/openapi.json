@@ -6,6 +6,45 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/Report/YearlySales": {
+      "post": {
+        "tags": [
+          "Report"
+        ],
+        "operationId": "Report_YearlySales",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/YearlySalesReportResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer auth": []
+          }
+        ]
+      }
+    },
     "/Products/GetAll": {
       "get": {
         "tags": [
@@ -258,6 +297,31 @@
   },
   "components": {
     "schemas": {
+      "YearlySalesReportResponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "totalSales": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalProducts": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
       "Product": {
         "type": "object",
         "additionalProperties": false,

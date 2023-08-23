@@ -29,6 +29,6 @@ public class SeedDatabaseRequestHandler : IRequestHandler<SeedDatabase>
 		await _mediator.Send(new SeedUsers(), cancellationToken);
 		await _mediator.Send(new SeedProducts(), cancellationToken);
 		await _mediator.Send(new SeedSaleTransactions(), cancellationToken);
-		_logger.LogInformation("Seeding reseeded");
+		_logger.LogInformation("Database reseeded");
 	}
 }

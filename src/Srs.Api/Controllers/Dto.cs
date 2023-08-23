@@ -43,3 +43,12 @@ public class UserResponseDto
 	public int Id { get; set; }
 	public string Name { get; set; }
 }
+
+public class YearlySalesReportResponseDto
+{
+	public string Date { get; set; }
+	public int TotalSales { get; set; }
+	public int TotalItems { get; set; }
+	public int TotalProducts { get; set; }
+	public decimal TotalAmount { get; set; }
+}
