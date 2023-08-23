@@ -7,7 +7,7 @@
   },
   "paths": {
     "/DbAdmin/RecreateDatabase": {
-      "get": {
+      "post": {
         "tags": [
           "DbAdmin"
         ],
@@ -27,23 +27,23 @@
       }
     },
     "/DbAdmin/SeedProducts": {
-      "get": {
+      "post": {
         "tags": [
           "DbAdmin"
         ],
         "operationId": "DbAdmin_SeedProducts",
-        "parameters": [
-          {
-            "name": "count",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 100
-            },
-            "x-position": 1
-          }
-        ],
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedProducts"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""
@@ -59,11 +59,23 @@
       }
     },
     "/DbAdmin/SeedUsers": {
-      "get": {
+      "post": {
         "tags": [
           "DbAdmin"
         ],
         "operationId": "DbAdmin_SeedUsers",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedUsers"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": ""
@@ -76,38 +88,6 @@
             ]
           }
         ]
-      }
-    },
-    "/Auth/Token": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "operationId": "Auth_Token",
-        "requestBody": {
-          "x-name": "request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TokenRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TokenResponse"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/Products": {
@@ -137,32 +117,71 @@
           }
         ]
       }
+    },
+    "/Auth/Token": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "Auth_Token",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateToken"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateTokenResult"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
-      "TokenResponse": {
+      "SeedProducts": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "token": {
-            "type": "string"
-          },
-          "expiresAt": {
-            "type": "string",
-            "format": "date-time"
+          "count": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
-      "TokenRequest": {
+      "SeedUsers": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userName": {
+          "adminUserName": {
             "type": "string"
           },
-          "password": {
+          "adminPassword": {
             "type": "string"
+          },
+          "agentUserNamePrefix": {
+            "type": "string"
+          },
+          "agentUserPasswordPrefix": {
+            "type": "string"
+          },
+          "agentUserCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -184,6 +203,31 @@
           "unitPrice": {
             "type": "number",
             "format": "decimal"
+          }
+        }
+      },
+      "GenerateTokenResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GenerateToken": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
           }
         }
       }

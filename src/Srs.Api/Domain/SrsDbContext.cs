@@ -4,11 +4,11 @@ namespace Srs.Api.Domain;
 
 public class SrsDbContext : DbContext
 {
-	public required DbSet<User> Users { get; set; }
-	public required DbSet<UserRole> UserRoles { get; set; }
-	public required DbSet<SaleTransaction> SaleTransactions { get; set; }
-	public required DbSet<SaleItem> SaleItems { get; set; }
-	public required DbSet<Product> Products { get; set; }
+	public DbSet<User> Users { get; set; } = null!;
+	public DbSet<UserRole> UserRoles { get; set; } = null!;
+	public DbSet<SaleTransaction> SaleTransactions { get; set; } = null!;
+	public DbSet<SaleItem> SaleItems { get; set; } = null!;
+	public DbSet<Product> Products { get; set; } = null!;
 
 	public SrsDbContext(DbContextOptions<SrsDbContext> options) : base(options)
 	{

@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -7,32 +8,29 @@ using Srs.Api.Domain;
 
 namespace Srs.Api.Controllers.Auth;
 
-[ApiController]
-[Route("[controller]/[action]")]
-public class AuthController : ControllerBase
+public record GenerateToken(string UserName, string Password) : IRequest<GenerateTokenResult>;
+
+public class GenerateTokenRequestHandler : IRequestHandler<GenerateToken, GenerateTokenResult>
 {
     private readonly SrsDbContext _db;
+    private readonly IMediator _mediator;
 
-    public record TokenRequest(string UserName, string Password);
-    public record TokenResponse(string Token, DateTime ExpiresAt);
-
-    public AuthController(SrsDbContext db)
+    public GenerateTokenRequestHandler(SrsDbContext db, IMediator mediator)
     {
         _db = db;
+        _mediator = mediator;
     }
 
-    [HttpPost]
-    public async Task<TokenResponse> Token([FromBody] TokenRequest request)
+    public async Task<GenerateTokenResult> Handle(GenerateToken request, CancellationToken cancellationToken)
     {
-        // todo: hash password
-        var passwordHash = request.Password;
-        var user = await _db.Users.SingleOrDefaultAsync(x => x.Name.Equals(request.UserName) && x.PasswordHash.Equals(passwordHash));
+        var passwordHash = await _mediator.Send(new GetHashOf(request.Password), cancellationToken);
+        var user = await _db.Users.SingleOrDefaultAsync(x => x.Name.Equals(request.UserName) && x.PasswordHash.Equals(passwordHash), cancellationToken);
 
         if (user == null) throw new Exception("Invalid user credentials");
 
         await _db.Entry(user)
             .Collection(x => x.Roles)
-            .LoadAsync();
+            .LoadAsync(cancellationToken);
 
         var handler = new JwtSecurityTokenHandler();
         var secret = Constants.JWT_DEFAULT_SECRET;
@@ -55,6 +53,26 @@ public class AuthController : ControllerBase
         var token = handler.CreateToken(descriptor);
         var jwt = handler.WriteToken(token);
 
-        return new TokenResponse(jwt, expires);
+        return new GenerateTokenResult(jwt, expires);
+    }
+}
+
+public record GenerateTokenResult(string Token, DateTime ExpiresAt);
+
+[ApiController]
+[Route("[controller]/[action]")]
+public class AuthController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public AuthController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    [HttpPost]
+    public async Task<GenerateTokenResult> Token([FromBody] GenerateToken request)
+    {
+        return await _mediator.Send(request);
     }
 }

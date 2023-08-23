@@ -28,9 +28,15 @@ builder.Services.AddOpenApiDocument(c =>
 var config = builder.Configuration.GetSection(nameof(SrsConfig)).Get<SrsConfig>();
 
 // database
-
-builder.Services.AddDbContext<SrsDbContext>(o =>
-	o.UseSqlServer(config.DbConnectionString));
+if (RuntimeContext.IsIntegrationTests)
+{
+	builder.Services.AddDbContext<SrsDbContext>(o =>
+		o.UseSqlServer(config.DbConnectionString), ServiceLifetime.Singleton, ServiceLifetime.Singleton);
+} else
+{
+	builder.Services.AddDbContext<SrsDbContext>(o =>
+		o.UseSqlServer(config.DbConnectionString));
+}
 
 // jwt auth
 
@@ -54,6 +60,10 @@ builder.Services.AddAuthentication(o =>
 
 builder.Services.AddAuthorization();
 
+// mediatr
+
+builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<IMediatorMarker>());
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -69,4 +79,15 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program {}
+public partial class Program
+{
+}
+
+public interface IMediatorMarker
+{
+}
+
+public static class RuntimeContext
+{
+	public static bool IsIntegrationTests = false;
+}
