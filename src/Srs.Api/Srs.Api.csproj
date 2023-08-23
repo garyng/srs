@@ -22,7 +22,7 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<Target Name="NSwag" AfterTargets="PostBuildEvent">
+	<Target Name="NSwag" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Debug' ">
 		<Exec WorkingDirectory="$(ProjectDir)" Command="$(NSwagExe_Net70) run nswag.json /variables:Configuration=$(Configuration)" />
 	</Target>
 
