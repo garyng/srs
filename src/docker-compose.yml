@@ -8,6 +8,8 @@ services:
       dockerfile: Srs.Api/Dockerfile
     environment:
        SrsConfig__DbConnectionString: "Server=srs.db;Database=srs;User Id=sa;Password=123!@#qweQWE;Trust Server Certificate=True"
+    ports:
+      - "20080:80"
 
   srs.db:
     image: mcr.microsoft.com/mssql/server:2022-latest
