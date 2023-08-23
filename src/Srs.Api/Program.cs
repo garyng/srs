@@ -5,11 +5,15 @@ using Microsoft.IdentityModel.Tokens;
 using NSwag.Generation.Processors.Security;
 using NSwag;
 using Srs.Api;
-using Srs.Api.Controllers;
 using Srs.Api.Controllers.DbAdmin;
 using Srs.Api.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (RuntimeContext.IsIntegrationTests)
+{
+	builder.Configuration.AddJsonFile("appsettings.test.json");
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
