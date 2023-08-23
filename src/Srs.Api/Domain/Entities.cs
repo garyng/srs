@@ -42,7 +42,7 @@ public class SaleItem
 	public required int Id { get; set; }
 
 	public required Product Product { get; set; }
-	public required double Quantity { get; set; }
+	public required int Quantity { get; set; }
 	public required decimal Total { get; set; }
 }
 

@@ -204,5 +204,23 @@ namespace Srs.Tests
 			result.Should().Be(expectedCount);
 		}
 
+		[Test]
+		public async Task Can_SeedSaleTransactions()
+		{
+			// Arrange
+			var current = await _db.SaleTransactions.CountAsync();
+			var transactionsCount = 100;
+			var expectedCount = current + transactionsCount;
+
+			// Act
+			await _dbAdminClient.SeedSaleTransactionsAsync(new ApiClient.SeedSaleTransactions
+			{
+				Count = expectedCount
+			});
+			var result = await _db.SaleTransactions.CountAsync();
+
+			// Assert
+			result.Should().Be(expectedCount);
+		}
 	}
 }
