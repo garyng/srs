@@ -195,5 +195,18 @@ namespace Srs.Tests
 			(await _db.SaleTransactions.CountAsync()).Should().Be(salesCount + 1);
 			(await _db.SaleItems.CountAsync()).Should().Be(itemsCount + 3);
 		}
+
+		[Test]
+		public async Task Can_GetAll()
+		{
+			// Arrange
+			var expected = await _db.SaleTransactions.CountAsync();
+
+			// Act
+			var result = await _client.GetAllAsync();
+
+			// Assert
+			result.Should().HaveCount(expected);
+		}
 	}
 }

@@ -35,6 +35,32 @@
       }
     },
     "/SaleTransaction": {
+      "get": {
+        "tags": [
+          "SaleTransaction"
+        ],
+        "operationId": "SaleTransaction_GetAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SaleTransactionResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer auth": []
+          }
+        ]
+      },
       "post": {
         "tags": [
           "SaleTransaction"

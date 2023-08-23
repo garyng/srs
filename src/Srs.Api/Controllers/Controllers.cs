@@ -115,14 +115,14 @@ public class InsertSaleTransactionRequestHandler : IRequestHandler<InsertSaleTra
 		_db.SaleTransactions.Add(sale);
 		await _db.SaveChangesAsync(cancellationToken);
 
-		return new SaleTransactionMapper().ToResponseDto(sale);
+		return sale.ToResponseDto();
 	}
 }
 
 [Mapper]
-public partial class SaleTransactionMapper
+public static partial class SaleTransactionMapper
 {
-	public partial SaleTransactionResponseDto ToResponseDto(SaleTransaction transaction);
+	public static partial SaleTransactionResponseDto ToResponseDto(this SaleTransaction transaction);
 }
 
 public record GetCurrentUser : IRequest<User>;
@@ -150,8 +150,33 @@ public class GetCurrentUserRequestHandler : IRequestHandler<GetCurrentUser, User
 	}
 }
 
+public record GetAllSaleTransactions : IRequest<List<SaleTransactionResponseDto>>;
+
+public class GetAllSaleTransactionsRequestHandler : IRequestHandler<GetAllSaleTransactions, List<SaleTransactionResponseDto>>
+{
+	private readonly SrsDbContext _db;
+
+	public GetAllSaleTransactionsRequestHandler(SrsDbContext db)
+	{
+		_db = db;
+	}
+
+	public async Task<List<SaleTransactionResponseDto>> Handle(GetAllSaleTransactions request, CancellationToken cancellationToken)
+	{
+		var sales = await _db.SaleTransactions
+			.Include(x => x.User)
+			.Include(x => x.Items)
+			.ThenInclude(x => x.Product)
+			.ToListAsync(cancellationToken);
+
+		return sales.Select(x => x.ToResponseDto())
+			.ToList();
+	}
+}
+
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class SaleTransactionController
 {
 	private readonly SrsDbContext _db;
@@ -163,15 +188,12 @@ public class SaleTransactionController
 		_mediator = mediator;
 	}
 
-	//[Authorize]
-	//[HttpGet("[action]")]
-	//public async Task<List<SaleTransaction>> GetAll()
-	//{
-	//	var transactions = await _db.SaleTransactions.ToListAsync();
-	//	return transactions;
-	//}
+	[HttpGet]
+	public async Task<List<SaleTransactionResponseDto>> GetAll()
+	{
+		return await _mediator.Send(new GetAllSaleTransactions());
+	}
 
-	[Authorize]
 	[HttpPost]
 	public async Task<SaleTransactionResponseDto> Post(SaleTransactionRequestDto request)
 	{
