@@ -1,4 +1,3 @@
-using Bogus;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -10,6 +9,9 @@ using Srs.Api.Controllers;
 using Srs.Api.Domain;
 using Srs.ApiClient;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Hosting;
+using GenerateToken = Srs.ApiClient.GenerateToken;
+using GenerateTokenResult = Srs.ApiClient.GenerateTokenResult;
 
 namespace Srs.Tests
 {
@@ -29,15 +31,16 @@ namespace Srs.Tests
 			RuntimeContext.IsIntegrationTests = true;
 			_webAppFactory = new WebApplicationFactory<Program>()
 				.WithWebHostBuilder(builder =>
+				{
+					ConfigureBuilder(builder);
 					builder.ConfigureServices(services =>
 					{
 						services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<ITestMediatorMarker>());
 						services.AddSingleton<TestHttpClientAccessor>();
-					}));
+					});
+				});
 			_scope = _webAppFactory.Services.CreateScope();
-			_httpClient = _webAppFactory.CreateClient();
-			_httpClientAccessor = _scope.ServiceProvider.GetRequiredService<TestHttpClientAccessor>();
-			_httpClientAccessor.Current = _httpClient;
+			RebuildHttpClient();
 			_db = _scope.ServiceProvider.GetRequiredService<SrsDbContext>();
 			_transaction = await _db.Database.BeginTransactionAsync();
 			_mediator = _scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -50,10 +53,15 @@ namespace Srs.Tests
 			_scope.Dispose();
 		}
 
-		protected async Task AuthenticateAsAdmin()
+		protected void RebuildHttpClient()
 		{
-			var result = await _mediator.Send(new AuthenticateAsTestAdmin());
-			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Token);
+			_httpClient = _webAppFactory.CreateClient();
+			_httpClientAccessor = _scope.ServiceProvider.GetRequiredService<TestHttpClientAccessor>();
+			_httpClientAccessor.Current = _httpClient;
+		}
+
+		protected virtual void ConfigureBuilder(IWebHostBuilder builder)
+		{
 		}
 	}
 
@@ -70,33 +78,65 @@ namespace Srs.Tests
 	public record AuthenticateAsTestAdmin : IRequest<GenerateTokenResult>;
 	public class AuthenticateAsTestAdminRequestHandler : IRequestHandler<AuthenticateAsTestAdmin, GenerateTokenResult>
 	{
+		private readonly IMediator _mediator;
+
+		public AuthenticateAsTestAdminRequestHandler(IMediator mediator)
+		{
+			_mediator = mediator;
+		}
+
+		public async Task<GenerateTokenResult> Handle(AuthenticateAsTestAdmin request, CancellationToken cancellationToken)
+		{
+			return await _mediator.Send(new AuthenticateAsTestUser(Constants.ADMIN_ROLE_NAME, "test-admin", "test-admin"), cancellationToken);
+		}
+	}
+
+	public record AuthenticateAsTestAgent : IRequest<GenerateTokenResult>;
+	public class AuthenticateAsTestAgentRequestHandler : IRequestHandler<AuthenticateAsTestAgent, GenerateTokenResult>
+	{
+		private readonly IMediator _mediator;
+
+		public AuthenticateAsTestAgentRequestHandler(IMediator mediator)
+		{
+			_mediator = mediator;
+		}
+
+		public async Task<GenerateTokenResult> Handle(AuthenticateAsTestAgent request, CancellationToken cancellationToken)
+		{
+			return await _mediator.Send(new AuthenticateAsTestUser(Constants.AGENT_ROLE_NAME, "test-agent", "test-agent"), cancellationToken);
+
+		}
+	}
+
+	public record AuthenticateAsTestUser(string Role, string UserName, string Password) : IRequest<GenerateTokenResult>;
+
+	public class AuthenticateAsTestUserRequestHandler : IRequestHandler<AuthenticateAsTestUser, GenerateTokenResult>
+	{
 		private readonly SrsDbContext _db;
 		private readonly IMediator _mediator;
 		private readonly HttpClient _httpClient;
 
-		public AuthenticateAsTestAdminRequestHandler(SrsDbContext db, IMediator mediator, TestHttpClientAccessor httpClient)
+		public AuthenticateAsTestUserRequestHandler(SrsDbContext db, IMediator mediator, TestHttpClientAccessor httpClient)
 		{
 			_db = db;
 			_mediator = mediator;
 			_httpClient = httpClient.Current;
 		}
 
-		public async Task<GenerateTokenResult> Handle(AuthenticateAsTestAdmin request, CancellationToken cancellationToken)
+		public async Task<GenerateTokenResult> Handle(AuthenticateAsTestUser request, CancellationToken cancellationToken)
 		{
-			var adminRole = await _db.UserRoles.FirstOrDefaultAsync(x => x.Name == Constants.ADMIN_ROLE_NAME, cancellationToken: cancellationToken);
-			adminRole ??= new UserRole
+			var role = await _db.UserRoles.FirstOrDefaultAsync(x => x.Name == request.Role, cancellationToken: cancellationToken);
+			role ??= new UserRole
 			{
 				Id = 0,
-				Name = Constants.ADMIN_ROLE_NAME
+				Name = request.Role
 			};
-			var userName = "test-admin";
-			var password = "test-admin";
 			var user = new User
 			{
 				Id = 0,
-				Name = userName,
-				PasswordHash = await _mediator.Send(new GetHashOf(password)),
-				Roles = new List<UserRole> { adminRole }
+				Name = request.UserName,
+				PasswordHash = await _mediator.Send(new GetHashOf(request.Password), cancellationToken),
+				Roles = new List<UserRole> { role }
 			};
 			_db.Users.Add(user);
 			await _db.SaveChangesAsync(cancellationToken);
@@ -104,25 +144,13 @@ namespace Srs.Tests
 			var client = new AuthClient("", _httpClient);
 			var result = await client.TokenAsync(new GenerateToken
 			{
-				UserName = userName,
-				Password = password
+				UserName = request.UserName,
+				Password = request.Password
 			}, cancellationToken);
+
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Token);
 			return result;
-		}
-	}
 
-	public class AuthTests : IntegrationTestsBase
-	{
-		[Test]
-		public async Task Can_Authenticate()
-		{
-			// Arrange
-
-			// Act
-			var result = await _mediator.Send(new AuthenticateAsTestAdmin());
-
-			// Assert
-			result.Token.Should().NotBeNull();
 		}
 	}
 
@@ -133,7 +161,7 @@ namespace Srs.Tests
 		[SetUp]
 		public async Task SetUp()
 		{
-			await AuthenticateAsAdmin();
+			await _mediator.Send(new AuthenticateAsTestAdmin());
 			_dbAdminClient = new DbAdminClient("", _httpClient);
 		}
 
