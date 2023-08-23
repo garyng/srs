@@ -6,6 +6,7 @@ using NSwag.Generation.Processors.Security;
 using NSwag;
 using Srs.Api;
 using Srs.Api.Controllers;
+using Srs.Api.Controllers.DbAdmin;
 using Srs.Api.Domain;
 
 var builder = WebApplication.CreateBuilder(args);

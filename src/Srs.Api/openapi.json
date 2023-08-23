@@ -6,6 +6,62 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/Products/GetAll": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "Products_GetAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer auth": []
+          }
+        ]
+      }
+    },
+    "/SaleTransaction/GetAll": {
+      "get": {
+        "tags": [
+          "SaleTransaction"
+        ],
+        "operationId": "SaleTransaction_GetAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SaleTransaction"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer auth": []
+          }
+        ]
+      }
+    },
     "/DbAdmin/RecreateDatabase": {
       "post": {
         "tags": [
@@ -122,62 +178,6 @@
         ]
       }
     },
-    "/Products/GetAll": {
-      "get": {
-        "tags": [
-          "Products"
-        ],
-        "operationId": "Products_GetAll",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Product"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer auth": []
-          }
-        ]
-      }
-    },
-    "/SaleTransaction/GetAll": {
-      "get": {
-        "tags": [
-          "SaleTransaction"
-        ],
-        "operationId": "SaleTransaction_GetAll",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SaleTransaction"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer auth": []
-          }
-        ]
-      }
-    },
     "/Auth/Token": {
       "post": {
         "tags": [
@@ -213,48 +213,6 @@
   },
   "components": {
     "schemas": {
-      "SeedProducts": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "count": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "SeedUsers": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "adminUserName": {
-            "type": "string"
-          },
-          "adminPassword": {
-            "type": "string"
-          },
-          "agentUserNamePrefix": {
-            "type": "string"
-          },
-          "agentUserPasswordPrefix": {
-            "type": "string"
-          },
-          "agentUserCount": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "SeedSaleTransactions": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "count": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
       "Product": {
         "type": "object",
         "additionalProperties": false,
@@ -374,6 +332,48 @@
             "items": {
               "$ref": "#/components/schemas/User"
             }
+          }
+        }
+      },
+      "SeedProducts": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SeedUsers": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "adminUserName": {
+            "type": "string"
+          },
+          "adminPassword": {
+            "type": "string"
+          },
+          "agentUserNamePrefix": {
+            "type": "string"
+          },
+          "agentUserPasswordPrefix": {
+            "type": "string"
+          },
+          "agentUserCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SeedSaleTransactions": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
