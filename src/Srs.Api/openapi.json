@@ -34,22 +34,31 @@
         ]
       }
     },
-    "/SaleTransaction/GetAll": {
-      "get": {
+    "/SaleTransaction": {
+      "post": {
         "tags": [
           "SaleTransaction"
         ],
-        "operationId": "SaleTransaction_GetAll",
+        "operationId": "SaleTransaction_Post",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaleTransactionRequestDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SaleTransaction"
-                  }
+                  "$ref": "#/components/schemas/SaleTransactionResponseDto"
                 }
               }
             }
@@ -62,12 +71,22 @@
         ]
       }
     },
-    "/DbAdmin/RecreateDatabase": {
+    "/DbAdmin/SeedDatabase": {
       "post": {
         "tags": [
           "DbAdmin"
         ],
-        "operationId": "DbAdmin_RecreateDatabase",
+        "operationId": "DbAdmin_SeedDatabase",
+        "parameters": [
+          {
+            "name": "recreate",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -234,7 +253,7 @@
           }
         }
       },
-      "SaleTransaction": {
+      "SaleTransactionResponseDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -257,15 +276,15 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SaleItem"
+              "$ref": "#/components/schemas/SaleItemResponseDto"
             }
           },
           "user": {
-            "$ref": "#/components/schemas/User"
+            "$ref": "#/components/schemas/UserResponseDto"
           }
         }
       },
-      "SaleItem": {
+      "SaleItemResponseDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -274,7 +293,7 @@
             "format": "int32"
           },
           "product": {
-            "$ref": "#/components/schemas/Product"
+            "$ref": "#/components/schemas/ProductResponseDto"
           },
           "quantity": {
             "type": "integer",
@@ -286,7 +305,7 @@
           }
         }
       },
-      "User": {
+      "ProductResponseDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -297,41 +316,52 @@
           "name": {
             "type": "string"
           },
-          "passwordHash": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
             "type": "string"
-          },
-          "reportingManager": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/User"
-              }
-            ]
-          },
-          "roles": {
+          }
+        }
+      },
+      "SaleTransactionRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UserRole"
+              "$ref": "#/components/schemas/SaleItemRequestDto"
             }
           }
         }
       },
-      "UserRole": {
+      "SaleItemRequestDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "id": {
+          "productId": {
             "type": "integer",
             "format": "int32"
           },
-          "name": {
-            "type": "string"
-          },
-          "users": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
-            }
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

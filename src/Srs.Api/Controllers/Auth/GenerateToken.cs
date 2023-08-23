@@ -37,7 +37,7 @@ public class GenerateTokenRequestHandler : IRequestHandler<GenerateToken, Genera
 		var expires = now.AddMinutes(5);
 		var claims = new List<Claim>
 		{
-			new("id", user.Id.ToString()),
+			new(ClaimTypes.NameIdentifier, user.Id.ToString()),
 			new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 		}.Concat(user.Roles.Select(x => new Claim(ClaimTypes.Role, x.Name)));
 

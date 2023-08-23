@@ -29,6 +29,7 @@ builder.Services.AddOpenApiDocument(c =>
 	});
 	c.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("bearer auth"));
 });
+builder.Services.AddHttpContextAccessor();
 
 // config
 

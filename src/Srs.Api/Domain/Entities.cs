@@ -28,22 +28,24 @@ public class UserRole
 public class SaleTransaction
 {
 	public int Id { get; set; }
-	public required decimal Total { get; set; }
-	public required DateTime CreatedAt { get; set; }
-	public required DateTime LastUpdatedAt { get; set; }
+	public decimal Total { get; set; }
+	public DateTime CreatedAt { get; set; }
+	public DateTime LastUpdatedAt { get; set; }
 
+	public ICollection<SaleItem> Items { get; set; } = new HashSet<SaleItem>();
 
-	public required ICollection<SaleItem> Items { get; set; } = new HashSet<SaleItem>();
-	public required User User { get; set; }
+	public int UserId { get; set; }
+	public User User { get; set; }
 }
 
 public class SaleItem
 {
-	public required int Id { get; set; }
+	public int Id { get; set; }
 
-	public required Product Product { get; set; }
-	public required int Quantity { get; set; }
-	public required decimal Total { get; set; }
+	public int ProductId { get; set; }
+	public Product Product { get; set; }
+	public int Quantity { get; set; }
+	public decimal Total { get; set; }
 }
 
 public class Product
