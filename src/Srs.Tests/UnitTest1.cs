@@ -41,6 +41,7 @@ namespace Srs.Tests
 			_scope = _webAppFactory.Services.CreateScope();
 			RebuildHttpClient();
 			_db = _scope.ServiceProvider.GetRequiredService<SrsDbContext>();
+			await _db.Database.EnsureCreatedAsync();
 			_transaction = await _db.Database.BeginTransactionAsync();
 			_mediator = _scope.ServiceProvider.GetRequiredService<IMediator>();
 		}
