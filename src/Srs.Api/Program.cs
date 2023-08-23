@@ -1,9 +1,11 @@
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NSwag.Generation.Processors.Security;
 using NSwag;
 using Srs.Api;
+using Srs.Api.Controllers;
 using Srs.Api.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,6 +67,16 @@ builder.Services.AddAuthorization();
 builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<IMediatorMarker>());
 
 var app = builder.Build();
+
+// seeding
+
+if (config.ShouldSeedDatabase)
+{
+	using var scope = app.Services.CreateScope();
+	var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+	await mediator.Send(new ReseedDatabase());
+	return;
+}
 
 app.UseOpenApi();
 app.UseSwaggerUi3();

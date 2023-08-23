@@ -8,6 +8,7 @@ services:
       dockerfile: Srs.Api/Dockerfile
     environment:
        SrsConfig__DbConnectionString: "Server=srs.db;Database=srs;User Id=sa;Password=123!@#qweQWE;Trust Server Certificate=True"
+       SrsConfig__ShouldSeedDatabase: ${SrsConfig__ShouldSeedDatabase:-false}
     ports:
       - "20080:80"
 
