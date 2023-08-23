@@ -66,11 +66,8 @@ builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<IMedia
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-	app.UseOpenApi();
-	app.UseSwaggerUi3();
-}
+app.UseOpenApi();
+app.UseSwaggerUi3();
 
 app.UseAuthentication();
 app.UseAuthorization();
