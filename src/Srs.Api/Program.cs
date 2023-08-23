@@ -82,12 +82,3 @@ app.Run();
 public partial class Program
 {
 }
-
-public interface IMediatorMarker
-{
-}
-
-public static class RuntimeContext
-{
-	public static bool IsIntegrationTests = false;
-}
